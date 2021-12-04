@@ -163,7 +163,8 @@ cv_df = cv_df %>%
 
 ```{r q1_model_rmses}
 
-cv_df %>%
+rmse_df =
+  cv_df %>%
   mutate(
     model_1 = map(.x = train, 
                   ~lm(bwt ~ gaweeks + momage + smoken + fincome, 
@@ -178,10 +179,53 @@ cv_df %>%
                       blength * babysex +
                       bhead * blength * babysex,
                       data = .x))
+  ) %>%
+  mutate(
+     rmse_model_1 = map2_dbl(model_1, 
+                             test, 
+                             ~rmse(model = .x, data = .y)),
+    rmse_model_2 = map2_dbl(model_2,
+                            test, 
+                            ~rmse(model = .x, data = .y)),
+    rmse_model_3 = map2_dbl(model_3,
+                            test, 
+                            ~rmse(model = .x, data = .y))
   )
 
 
 ```
+
+### Model Choice
+
+```{r q1_model_choice}
+
+rmse_clean = rmse_df %>%
+  select(starts_with("rmse")) %>%
+  pivot_longer(
+    everything(),
+    names_to = "model",
+    values_to = "rmse",
+    names_prefix = "rmse_"
+  ) 
+
+ggplot(rmse_clean, aes(x = model, y = rmse, color = model)) +
+  geom_violin() +
+  theme(legend.position = "right") +
+  labs(x = "Regression Model",
+       y = "RMSE",
+       title = "RMSEs by Birthweight Regression Model")
+
+rmse_clean %>%
+  group_by(model) %>%
+  summarize(avg_rmse = mean(rmse))
+ 
+
+```
+Based on the average RMSE for each of the models, Model 1 has the highest average RMSE, Model 2 has the second highest average RMSE, and Model 3 has the lowest average RMSE. From the Violin plot, we can see that Model 1 consistently has the highest RMSE when fitted to the test data sets. While there is some overlap in the RMSEs for Model 2 and Model 3, Model 2 generally has a higher RMSE than Model 3. 
+
+RMSE gives us a sense of the average distance between the birth weight that is observed and the birth weight values predicted by each of the regression models. Since Model 3 has the lowest average RMSE, Model 3 is generally the best of the three models for predicting baby's birth weight. 
+
+In other words, a model which includes the main effects and interactions between the baby's head circumference at birth, the baby's length in centimeters at birth, and the baby's sex more accurately predicts baby's birth weight when compared to a model that includes the main effects of the baby's gestational age in weeks, the mother's age at birth, the mother's smoking status, and the family's financial income or a model that includes the main effects of the baby's length at birth and the baby's gestational age in weeks.
 
 
 
