@@ -270,12 +270,38 @@ boot_sample = function(df) {
 
 boot_sample(weather_df)
 
+```
+
+## Draw 5,000 Bootstrap Samples
+
+```{r q2_many_boots}
+
+boot_straps = 
+  tibble(
+    strap_number = 1:5000,
+    strap_sample = rerun(5000, boot_sample(weather_df))
+  ) %>% view()
 
 ```
 
+## Linear Regression on the 5,000 Bootstrap Samples
 
+```{r q2_boot_analysis}
 
+boot_results = 
+  boot_straps %>%
+  mutate(
+    models = map(.x = strap_sample, ~lm(tmax ~ tmin, data = .x)),
+    results = map(models, broom::tidy),
+    glance = map(models, broom::glance)
+  ) %>%
+  select(strap_number, results, glance) %>%
+  unnest(results, glance) %>%
+  select(strap_number, term, estimate, std.error, r.squared)
 
+view(boot_results)
+
+```
 
 
 
