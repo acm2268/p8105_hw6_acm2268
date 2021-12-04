@@ -1,0 +1,107 @@
+---
+title: "p8105_hw6_acm2268"
+author: "Amanda Miles"
+date: "12/4/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(dplyr)
+library(modelr)
+library(mgcv)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+set.seed(1)
+
+```
+
+
+```{r q1_import}
+
+birthweight_df = read_csv(file = "./data/birthweight.csv") %>%
+  janitor::clean_names()
+
+birthweight_df %>%
+  str() %>%
+  view()
+
+skimr::skim(birthweight_df)
+
+```
+
+The dataset includes information on 4,342 children. It includes 20  variables and has 4,342 rows. All of the variables are numeric and there are no missing values. 
+
+```{r q1_cleaning}
+
+birthweight_clean = birthweight_df %>%
+  mutate(
+    babysex = as.factor(as.character(babysex)),
+    babysex = fct_recode(babysex, 
+                     "female" = "2",
+                     "male" = "1"),
+    frace = as.factor(as.character(frace)),
+    frace = fct_recode(frace,
+                       "White" = "1",
+                       "Black" = "2",
+                       "Asian" = "3",
+                       "Puerto Rican" = "4",
+                       "Other" = "8",
+                       "Unknown" = "9"),
+    malform = as.factor(as.character(malform)),
+    malform = fct_recode(malform,
+                         "absent" = "0",
+                         "present" = "1"),
+    mrace = as.factor(as.character(mrace)),
+    mrace = fct_recode(mrace,
+                       "White" = "1",
+                       "Black" = "2",
+                       "Asian" = "3",
+                       "Puerto Rican" = "4",
+                       "Other" = "8")
+    )
+
+birthweight_clean %>%
+  summarize(
+    frace_unknown = sum(frace == "Unknown"),
+    mrace_other = sum(mrace == "Other")
+  )
+
+```
+
+Converted the appropriate variables to factors and investigated the unknown levels in frace = "unknown" and mrace = "other".
+
+```{r}
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
