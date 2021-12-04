@@ -227,8 +227,51 @@ RMSE gives us a sense of the average distance between the birth weight that is o
 
 In other words, a model which includes the main effects and interactions between the baby's head circumference at birth, the baby's length in centimeters at birth, and the baby's sex more accurately predicts baby's birth weight when compared to a model that includes the main effects of the baby's gestational age in weeks, the mother's age at birth, the mother's smoking status, and the family's financial income or a model that includes the main effects of the baby's length at birth and the baby's gestational age in weeks.
 
+# Question 2: Central Park Weather in 2017
+
+## Data Import
+
+```{r q2_data_import}
+
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+
+view(weather_df)
+
+set.seed(1)
+
+```
+
+## Draw one bootstrap sample
+
+```{r q2_one_bootstrap}
+
+boot_sample = function(df) {
+  
+  sample_frac(df, replace = TRUE)
+  
+}
 
 
+```
+
+## check if it works
+
+```{r}
+
+boot_sample(weather_df)
+
+
+```
 
 
 
