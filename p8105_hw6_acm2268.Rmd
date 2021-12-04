@@ -37,12 +37,10 @@ set.seed(1)
 ```{r q1_import}
 
 birthweight_df = read_csv(file = "./data/birthweight.csv") %>%
-  janitor::clean_names()
-
-birthweight_df %>%
-  str() %>%
+  janitor::clean_names() %>%
   view()
 
+str(birthweight_df)
 skimr::skim(birthweight_df)
 
 ```
@@ -88,14 +86,42 @@ birthweight_clean %>%
 
 Converted the appropriate variables to factors and investigated the unknown levels in frace = "unknown" and mrace = "other".
 
-```{r}
+```{r q1_model_1}
 
+model_1 = lm(bwt ~ gaweeks + momage + smoken + fincome, data = birthweight_clean)
 
+model_1 %>% 
+  broom::tidy() %>%
+  select(term, estimate, p.value) %>% 
+  knitr::kable(digits = 3)
 
+```
+
+The predictor variables were chosen based on my hypothesized structure for the factors that underlie birth weight. My proposed linear regression model for birth weight is as follows: 
+
+bwt = b0 + b1(gaweeks) + b2(momage) + b3(smoken) + b4(fincome) 
+
+```{r q1_residuals}
+
+birthweight_res = birthweight_clean %>%
+  add_residuals(model_1) %>%
+  add_predictions(model_1) %>% 
+  mutate(
+    resid = round(resid, digits = 3),
+    pred = round(pred, digits = 3)
+  )
+
+ggplot(birthweight_res, aes(x = pred, y = resid)) + 
+  geom_point(size = .5, color = "blue") +
+  labs(x = "Predicted Birthweight (grams)",
+       y = "Residual",
+       title = "Association between Residuals and Predicted Birthweight")
 
 ```
 
 
+
+ 
 
 
 
