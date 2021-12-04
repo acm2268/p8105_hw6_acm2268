@@ -33,6 +33,9 @@ set.seed(1)
 
 ```
 
+# Question 1: Birthweight
+
+## Data Import
 
 ```{r q1_import}
 
@@ -46,6 +49,8 @@ skimr::skim(birthweight_df)
 ```
 
 The dataset includes information on 4,342 children. It includes 20  variables and has 4,342 rows. All of the variables are numeric and there are no missing values. 
+
+## Data Cleaning
 
 ```{r q1_cleaning}
 
@@ -86,6 +91,8 @@ birthweight_clean %>%
 
 Converted the appropriate variables to factors and investigated the unknown levels in frace = "unknown" and mrace = "other".
 
+## Model 1: Regression Model for Birthweight
+
 ```{r q1_model_1}
 
 model_1 = lm(bwt ~ gaweeks + momage + smoken + fincome, data = birthweight_clean)
@@ -100,6 +107,8 @@ model_1 %>%
 The predictor variables were chosen based on my hypothesized structure for the factors that underlie birth weight. My proposed linear regression model for birth weight is as follows: 
 
 bwt = b0 + b1(gaweeks) + b2(momage) + b3(smoken) + b4(fincome) 
+
+## Residual Plot for Model 1
 
 ```{r q1_residuals}
 
@@ -119,9 +128,61 @@ ggplot(birthweight_res, aes(x = pred, y = resid)) +
 
 ```
 
+## Cross-Validation
+
+### Created Models 2 and 3
+
+```{r q1_other_models}
+
+model_2 = lm(bwt ~ blength + gaweeks, data = birthweight_clean)
+
+model_3 = lm(bwt ~ 
+               bhead + blength + babysex + 
+               bhead * blength + bhead * babysex + blength * babysex +
+               bhead * blength * babysex,
+               data = birthweight_clean)
+
+```
+
+### Creating Crossv_mc Tibble with Train & Test Data
+
+```{r q1_crossv}
+
+cv_df = 
+  crossv_mc(birthweight_clean, 100)
+
+cv_df = cv_df %>%
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)
+  ) %>% view()
+
+```
+
+### Fit models and get RMSEs (Root Mean Squared Errors)
+
+```{r q1_model_rmses}
+
+cv_df %>%
+  mutate(
+    model_1 = map(.x = train, 
+                  ~lm(bwt ~ gaweeks + momage + smoken + fincome, 
+                  data = .x)),
+    model_2 = map(.x = train,
+                  ~lm(bwt ~ blength + gaweeks, 
+                      data = .x)),
+    model_3 = map(.x = train,
+                  ~lm(bwt ~ 
+                      bhead + blength + babysex + 
+                      bhead * blength + bhead * babysex +
+                      blength * babysex +
+                      bhead * blength * babysex,
+                      data = .x))
+  )
 
 
- 
+```
+
 
 
 
