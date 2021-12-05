@@ -323,22 +323,14 @@ The plot of the 5,000 bootstrap model log(b0*b1) values is approximately normall
 r_2_boots %>%
   summarize(
     lower_cl = quantile(r.squared, 0.025),
-    upper_cl = quantile(r.squared, 0.975),
-    mean = mean(r.squared),
-    median = median(r.squared),
-    min = min(r.squared),
-    max = max(r.squared)
+    upper_cl = quantile(r.squared, 0.975)
   )
  
 log_boots_2 %>%
   summarize(
     lower_cl = quantile(log_slope_int, 0.025),
-    upper_cl = quantile(log_slope_int, 0.975),
-    mean = mean(log_slope_int),
-    median = median(log_slope_int),
-    min = min(log_slope_int),
-    max = max(log_slope_int)
-  )
+    upper_cl = quantile(log_slope_int, 0.975)
+   )
 
 ```
 
