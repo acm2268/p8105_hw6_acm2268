@@ -104,7 +104,7 @@ model_1 %>%
 
 ```
 
-The predictor variables were chosen based on my hypothesized structure for the factors that underlie birth weight. My proposed linear regression model for birth weight is as follows: 
+The predictor variables were chosen based on my hypothesized structure for the factors that underlie birth weight. Premature birth can lead to a lower birth weight, so I hypothesize that the number of gestation weeks at birth is a factor that drives baby birth weight. Additionally, mothers who are older when they give birth or are smokers can have lower birth weight babies, so I hypothesize that mother's age and mother's smoking status are two additional factors that underlie baby's birth weight. Additionally, I hypothesize that SES could be associated with baby's birth weight so I included family's monthly income as the last predictor in my model. My proposed linear regression model for birth weight is as follows: 
 
 bwt = b0 + b1(gaweeks) + b2(momage) + b3(smoken) + b4(fincome) 
 
@@ -281,7 +281,7 @@ r_2_boots =
 
 ```{r q2_log_b0_b1}
 
- log_boots_2 = 
+log_boots_2 = 
   log_boots %>%
   mutate(
     log_estimate = log(estimate)
@@ -295,12 +295,55 @@ view(log_boots_2)
 
 ```
 
+## Distribution Plots
+
 ```{r}
 
+ggplot(r_2_boots, aes(x = r.squared)) + geom_density(color = "blue", fill = "lightcyan2") +
+labs(x = "R-Squared",
+     y = "Density",
+     title = "Distribution of Bootstrap R-Squared Values")
 
+ggplot(log_boots_2, aes(x = log_slope_int)) + geom_density(color = "seagreen4", fill = "darkseagreen2") +
+labs(x = "Log(B0*B1)",
+     y = "Density",
+     title = "Distribution of Bootstrap Model Log(B0*B1)")
 
 
 ```
+The plot of the 5,000 bootstrap model R-squared values is approximately normally distributed. The values range from approximately 0.87 to approximately 0.937, with the mean being approximately 0.91.
 
+The plot of the 5,000 bootstrap model log(b0*b1) values is approximately normally distributed. The values range from approximately 1.92 to approximately 2.10, with the mean being approximately 2.01.  
+
+
+## Confidence Intervals
+
+```{r}
+
+r_2_boots %>%
+  summarize(
+    lower_cl = quantile(r.squared, 0.025),
+    upper_cl = quantile(r.squared, 0.975),
+    mean = mean(r.squared),
+    median = median(r.squared),
+    min = min(r.squared),
+    max = max(r.squared)
+  )
+ 
+log_boots_2 %>%
+  summarize(
+    lower_cl = quantile(log_slope_int, 0.025),
+    upper_cl = quantile(log_slope_int, 0.975),
+    mean = mean(log_slope_int),
+    median = median(log_slope_int),
+    min = min(log_slope_int),
+    max = max(log_slope_int)
+  )
+
+```
+
+The 95% confidence interval for the model R-squared  ranges from 0.8937 to 0.9271.
+
+The 95% confidence interval for the model log(b0*b1) ranges from 1.9649 to 2.0589.
 
 
