@@ -251,55 +251,54 @@ set.seed(1)
 
 ```
 
-## Draw one bootstrap sample
-
-```{r q2_one_bootstrap}
-
-boot_sample = function(df) {
-  
-  sample_frac(df, replace = TRUE)
-  
-}
-
-
-```
-
-## check if it works
+## Sample 5,000 Bootstraps and Run Model on Each
 
 ```{r}
 
-boot_sample(weather_df)
-
-```
-
-## Draw 5,000 Bootstrap Samples
-
-```{r q2_many_boots}
-
-boot_straps = 
-  tibble(
-    strap_number = 1:5000,
-    strap_sample = rerun(5000, boot_sample(weather_df))
-  ) %>% view()
-
-```
-
-## Linear Regression on the 5,000 Bootstrap Samples
-
-```{r q2_boot_analysis}
-
-boot_results = 
-  boot_straps %>%
+ weather_boots = weather_df %>% 
+  bootstrap(n = 5000) %>%
   mutate(
-    models = map(.x = strap_sample, ~lm(tmax ~ tmin, data = .x)),
+    models = map(strap, ~lm(tmax ~ tmin, data = .x)),
     results = map(models, broom::tidy),
     glance = map(models, broom::glance)
-  ) %>%
-  select(strap_number, results, glance) %>%
-  unnest(results, glance) %>%
-  select(strap_number, term, estimate, std.error, r.squared)
+  )
 
-view(boot_results)
+log_boots = 
+  weather_boots %>%
+  select(.id, strap, results) %>%
+  unnest(results) %>%
+  select(.id, strap, term, estimate, std.error)
+
+r_2_boots = 
+  weather_boots %>%
+  select(.id, strap, glance) %>%
+  unnest(glance) %>%
+  select(.id, strap, r.squared)
+
+```
+
+## Calculating Log(B0*B1)
+
+```{r q2_log_b0_b1}
+
+ log_boots_2 = 
+  log_boots %>%
+  mutate(
+    log_estimate = log(estimate)
+  ) %>%
+  group_by(.id) %>%
+  summarize(
+    log_slope_int = sum(log_estimate)
+    ) 
+
+view(log_boots_2)
+
+```
+
+```{r}
+
+
+
 
 ```
 
